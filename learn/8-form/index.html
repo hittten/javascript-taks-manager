@@ -1,0 +1,55 @@
+<form>
+    <p>
+        <label>
+            Nombre:
+            <input type="text" name="name">
+        </label>
+    </p>
+    <p>
+        <label>
+            Correo:
+            <input type="text" name="email">
+        </label>
+    </p>
+    <p>
+        <label>
+            Telefono:
+            <input type="text" name="phone">
+        </label>
+    </p>
+    <p>
+        <button type="submit">Enviar</button>
+    </p>
+</form>
+<script>
+    const form = document.querySelector('form');
+    form.onsubmit = function (event) {
+        event.preventDefault();
+        console.log(event);
+        const data = {};
+        for (const formElement of form) {
+            if (formElement.name) {
+                console.log(formElement.name, formElement.value);
+                data[formElement.name] = formElement.value;
+            }
+        }
+
+        console.log(data);
+
+        new FormData(form);
+    }
+    form.addEventListener('formdata', (e) => {
+        console.log('formdata fired');
+
+        // Get the form data from the event object
+        let data = e.formData;
+        for (let value of data.values()) {
+            console.log(value);
+        }
+
+        fetch('http://localhost/api', {
+            method:'POST',
+            body: data,
+        })
+    });
+</script>
