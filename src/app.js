@@ -54,3 +54,19 @@ const TASKS = [
 ];
 
 console.log(TASKS);
+
+// Elements
+const taskInputElement = document.querySelector('#taskInput');
+const taskListElement = document.querySelector('#taskList');
+
+const modalElement = document.querySelector('.modal');
+const modalYesButton = modalElement.querySelector('button:first-child');
+const modalNoButton = modalElement.querySelector('button:last-child');
+
+const tasksLeftElement = document.querySelector('#tasksLeft');
+
+const allButton = document.querySelector('#allButton');
+const pendingButton = document.querySelector('#pendingButton');
+const completedButton = document.querySelector('#completedButton');
+const filterButtons = [allButton, pendingButton, completedButton];
+
