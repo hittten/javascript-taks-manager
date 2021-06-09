@@ -68,16 +68,20 @@ const pendingButton = document.querySelector('#pendingButton');
 const completedButton = document.querySelector('#completedButton');
 const filterButtons = [allButton, pendingButton, completedButton];
 
-for (const task of TASKS) {
-  const taskElement = document.createElement('li');
+function listTasks(taskList, tasks) {
+  for (const task of tasks) {
+    const taskElement = document.createElement('li');
 
-  taskElement.innerHTML = `
+    taskElement.innerHTML = `
     <div>
-      <input type="checkbox">
+      <input type="checkbox" ${task.done ? 'checked' : ''}>
       <span>${task.description}</span>
     </div>
     <span class="material-icons btn-delete">delete_outline</span>
   `;
 
-  taskListElement.appendChild(taskElement)
+    taskList.appendChild(taskElement)
+  }
 }
+
+listTasks(taskListElement, TASKS);
