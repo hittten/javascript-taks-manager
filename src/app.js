@@ -53,8 +53,6 @@ const TASKS = [
   },
 ];
 
-console.log(TASKS);
-
 // Elements
 const taskInputElement = document.querySelector('#taskInput');
 const taskListElement = document.querySelector('#taskList');
@@ -70,3 +68,16 @@ const pendingButton = document.querySelector('#pendingButton');
 const completedButton = document.querySelector('#completedButton');
 const filterButtons = [allButton, pendingButton, completedButton];
 
+for (const task of TASKS) {
+  const taskElement = document.createElement('li');
+
+  taskElement.innerHTML = `
+    <div>
+      <input type="checkbox">
+      <span>${task.description}</span>
+    </div>
+    <span class="material-icons btn-delete">delete_outline</span>
+  `;
+
+  taskListElement.appendChild(taskElement)
+}
