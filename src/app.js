@@ -96,11 +96,36 @@ function createTaskElement(task) {
   return taskElement;
 }
 
-function listTasks(taskList, tasks) {
+function listTasks(taskList, tasks, filter = 'all') {
+  if (filter === 'pending') {
+    tasks = tasks.filter(task => task.done === false);
+  }
+  if (filter === 'completed') {
+    tasks = tasks.filter(task => task.done === true);
+  }
+
+  taskList.innerHTML = '';
   for (const task of tasks) {
     const taskElement = createTaskElement(task)
 
     taskList.appendChild(taskElement)
+  }
+}
+
+function updateFilterButtonsElements(e) {
+  const element = e.target;
+
+  filterButtons.forEach(button => button.disabled = false);
+  element.disabled = true;
+
+  if (element.id === 'allButton') {
+    listTasks(taskListElement, TASKS, 'all');
+  }
+  if (element.id === 'pendingButton') {
+    listTasks(taskListElement, TASKS, 'pending')
+  }
+  if (element.id === 'completedButton') {
+    listTasks(taskListElement, TASKS, 'completed')
   }
 }
 
@@ -120,3 +145,9 @@ taskInputElement.onkeyup = (e) => {
     taskListElement.appendChild(taskElement);
   }
 };
+
+allButton.onclick = function (e) {
+  updateFilterButtonsElements(e)
+}
+pendingButton.onclick = (e) => updateFilterButtonsElements(e);
+completedButton.onclick = (e) => updateFilterButtonsElements(e);
