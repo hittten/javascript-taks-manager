@@ -68,11 +68,24 @@ const pendingButton = document.querySelector('#pendingButton');
 const completedButton = document.querySelector('#completedButton');
 const filterButtons = [allButton, pendingButton, completedButton];
 
-function listTasks(taskList, tasks) {
-  for (const task of tasks) {
-    const taskElement = document.createElement('li');
+// Funtions
 
-    taskElement.innerHTML = `
+function createTask(description) {
+  const task = {
+    id: TASKS.length + 1,
+    description: description,
+    done: false,
+  };
+
+  TASKS.push(task);
+
+  return task
+}
+
+function createTaskElement(task) {
+  const taskElement = document.createElement('li');
+
+  taskElement.innerHTML = `
     <div>
       <input type="checkbox" ${task.done ? 'checked' : ''}>
       <span>${task.description}</span>
@@ -80,8 +93,30 @@ function listTasks(taskList, tasks) {
     <span class="material-icons btn-delete">delete_outline</span>
   `;
 
+  return taskElement;
+}
+
+function listTasks(taskList, tasks) {
+  for (const task of tasks) {
+    const taskElement = createTaskElement(task)
+
     taskList.appendChild(taskElement)
   }
 }
 
 listTasks(taskListElement, TASKS);
+
+// Events
+
+taskInputElement.onkeyup = (e) => {
+  const input = e.target;
+
+  if (e.key === 'Enter' && input.value) {
+    input.focus();
+    const task = createTask(input.value);
+    const taskElement = createTaskElement(task);
+    input.value = '';
+
+    taskListElement.appendChild(taskElement);
+  }
+};
