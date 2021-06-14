@@ -1,0 +1,99 @@
+<body>
+<style>
+  main {
+    padding: 20px;
+
+    margin-bottom: 10px;
+  }
+
+  article {
+    background: gray;
+    padding: 10px;
+  }
+
+  section {
+    background: lightgray;
+    border: 1px solid black;
+    padding: 10px;
+    margin: 10px;
+  }
+
+</style>
+<main>
+  <article>
+    <h1>Article #1</h1>
+    <section id="sec1">
+      <h2>1th section</h2>
+    </section>
+    <section id="sec2">
+      <h2>2th section</h2>
+    </section>
+  </article>
+</main>
+<button>Button</button>
+
+<script>
+  const main = document.querySelector('main');
+  const article = document.querySelector('article');
+  const sec1 = document.querySelector('#sec1');
+  const sec2 = document.querySelector('#sec2');
+  const button = document.querySelector('button');
+
+  const myEvent = new CustomEvent('myEvent', {
+    bubbles: true,
+    detail: {
+      data: 123,
+    },
+  });
+
+  function logger(listener, e, event = 'click') {
+    console.log(`${event} ${listener} listener on `, e.target, {
+      detail: e.detail,
+      bubbles: e.bubbles,
+      cancelBubble: e.cancelBubble,
+      cancelable: e.cancelable,
+    });
+  }
+
+  button.onclick = () => {
+    console.log('dispaching myEvent');
+    sec1.dispatchEvent(myEvent);
+  };
+
+  // main.addEventListener('click', (e) => {
+  //   // e.stopPropagation()
+  //   // e.cancelBubble = true;
+  //     logger('bubble main', e);
+  //   },
+  // );
+  // main.addEventListener('click', (e) => {
+  //     // e.stopPropagation()
+  //     // e.cancelBubble = true;
+  //     logger('capture main', e);
+  //   },
+  //   {capture: true}
+  // );
+
+  article.addEventListener('click', (e) => {
+    logger('article', e);
+  }, {passive: true});
+
+  article.addEventListener('myEvent', (e) => {
+      logger('article', e, 'myEvent');
+    },
+    {capture: true}
+  );
+
+  sec1.addEventListener('click', (e) => {
+    logger('sec1', e);
+  });
+
+  sec1.addEventListener('myEvent', (e) => {
+    logger('sec1', e, 'myEvent');
+  });
+
+  sec2.addEventListener('click', (e) => {
+    logger('sec2', e);
+  });
+</script>
+</body>

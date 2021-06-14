@@ -70,6 +70,19 @@ const filterButtons = [allButton, pendingButton, completedButton];
 
 // Funtions
 
+function taskEvent(task, element, action) {
+  const TaskEvent = new CustomEvent('TaskEvent' + action, {
+    bubbles: true,
+    detail: {
+      action,
+      task,
+      element,
+    }
+  });
+
+  element.dispatchEvent(TaskEvent)
+}
+
 function createTask(description) {
   const task = {
     id: TASKS.length + 1,
@@ -122,14 +135,32 @@ function createTaskElement(task) {
   }
 
   taskElement.querySelector('span.material-icons').onclick = () => {
-    modalElement.querySelector('p').textContent = task.description;
-    modalElement.classList.add('open');
+    taskEvent(task, taskElement, 'Delete')
+  };
 
-    modalYesButton.onclick = () => {
-      deleteTask(task);
-      modalNoButton.click();
+  taskElement.querySelector('span').onclick = () => {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = task.description;
+
+    const updateButton = document.createElement('span');
+    updateButton.className = 'material-icons';
+    updateButton.textContent = 'done';
+
+    updateButton.onclick = () => {
+      const updatedTask = {...task};
+      updatedTask.description = input.value;
+      updateTask(updatedTask);
+
+      const updatedTaskElement = createTaskElement(updatedTask);
+      taskElement.parentElement.insertBefore(updatedTaskElement, taskElement);
       taskElement.remove();
     };
+
+    taskElement.appendChild(input);
+    taskElement.appendChild(updateButton);
+
+    taskElement.classList.add('updating');
   };
 
   return taskElement;
@@ -199,4 +230,49 @@ completedButton.onclick = (e) => updateFilterButtonsElements(e);
 
 modalNoButton.onclick = () => {
   modalElement.classList.remove('open');
+}
+
+// EVENTS
+const testButton = document.querySelector('#testButton')
+const event = new CustomEvent('something', {
+  bubbles: true,
+  detail: {
+    element: this,
+    task: {id: 1, description: 'Mi primera tarea', done: false}
+  }
+});
+// testButton.onclick = () => document.body.dispatchEvent(event)
+testButton.onclick = () => document.querySelector('ul > li').dispatchEvent(event)
+
+taskListElement.addEventListener('TaskEventUpdate', e => {
+  console.log(e.detail)
+});
+
+taskListElement.addEventListener('TaskEventDelete', e => {
+  const {task, element} = e.detail;
+
+  modalElement.querySelector('p').textContent = task.description;
+  modalElement.classList.add('open');
+
+  modalYesButton.onclick = () => {
+    deleteTask(task);
+    modalNoButton.click();
+    element.remove();
+  };
+});
+
+
+modalElement.addEventListener("click", (e) => {
+    console.log(e)
+    if (e.target !== modalElement) {
+      return;
+    }
+  })
+
+function openDialog(task) {
+  modalElement.querySelector('p').textContent = task.description;
+  modalElement.classList.add('open');
+  modalYesButton.onclick = () => {
+
+  };
 }
