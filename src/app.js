@@ -132,6 +132,31 @@ function createTaskElement(task) {
     };
   };
 
+  taskElement.querySelector('span').onclick = () => {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = task.description;
+
+    const updateButton = document.createElement('span');
+    updateButton.className = 'material-icons';
+    updateButton.textContent = 'done';
+
+    updateButton.onclick = () => {
+      const updatedTask = {...task};
+      updatedTask.description = input.value;
+      updateTask(updatedTask);
+
+      const updatedTaskElement = createTaskElement(updatedTask);
+      taskElement.parentElement.insertBefore(updatedTaskElement, taskElement);
+      taskElement.remove();
+    };
+
+    taskElement.appendChild(input);
+    taskElement.appendChild(updateButton);
+
+    taskElement.classList.add('updating');
+  };
+
   return taskElement;
 }
 
