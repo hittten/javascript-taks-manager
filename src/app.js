@@ -82,6 +82,24 @@ function createTask(description) {
   return task
 }
 
+function updateTask(task) {
+  const index = TASKS.findIndex(t => t.id === task.id);
+  // TASKS.findIndex(function (t) {
+  //   if (t.id === true) {
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // });
+
+  TASKS[index] = task;
+}
+
+function deleteTask(task) {
+  const index = TASKS.findIndex(t => t.id === task.id);
+  delete TASKS[index];
+}
+
 function createTaskElement(task) {
   const taskElement = document.createElement('li');
 
@@ -92,6 +110,27 @@ function createTaskElement(task) {
     </div>
     <span class="material-icons btn-delete">delete_outline</span>
   `;
+
+  const input = taskElement.querySelector('input');
+  input.onchange = function (e) {
+    const newTask = {...task};
+    // const newTask = Object.assign({}, task)
+    newTask.done = e.target.checked;
+
+    updateTask(newTask);
+    updateTasksLeft()
+  }
+
+  taskElement.querySelector('span.material-icons').onclick = () => {
+    modalElement.querySelector('p').textContent = task.description;
+    modalElement.classList.add('open');
+
+    modalYesButton.onclick = () => {
+      deleteTask(task);
+      modalNoButton.click();
+      taskElement.remove();
+    };
+  };
 
   return taskElement;
 }
@@ -110,6 +149,7 @@ function listTasks(taskList, tasks, filter = 'all') {
 
     taskList.appendChild(taskElement)
   }
+  updateTasksLeft()
 }
 
 function updateFilterButtonsElements(e) {
@@ -127,6 +167,11 @@ function updateFilterButtonsElements(e) {
   if (element.id === 'completedButton') {
     listTasks(taskListElement, TASKS, 'completed')
   }
+}
+
+function updateTasksLeft() {
+  const count = TASKS.filter(task => task.done === false).length;
+  tasksLeftElement.textContent = `Quedan ${count} tareas`;
 }
 
 listTasks(taskListElement, TASKS);
@@ -151,3 +196,7 @@ allButton.onclick = function (e) {
 }
 pendingButton.onclick = (e) => updateFilterButtonsElements(e);
 completedButton.onclick = (e) => updateFilterButtonsElements(e);
+
+modalNoButton.onclick = () => {
+  modalElement.classList.remove('open');
+}
