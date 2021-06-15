@@ -1,5 +1,4 @@
-console.log('hello world');
-
+// Mock
 const TASKS = [
   {
     id: 1,
@@ -68,38 +67,44 @@ const pendingButton = document.querySelector('#pendingButton');
 const completedButton = document.querySelector('#completedButton');
 const filterButtons = [allButton, pendingButton, completedButton];
 
-// Funtions
+// Services
+const apiUrl = 'https://us-central1-classroom-playground.cloudfunctions.net/api/gilberto';
+
+function getTasks() {
+  return fetch(`${apiUrl}/tasks`)
+    .then(res => res.json())
+}
 
 function createTask(description) {
   const task = {
-    id: TASKS.length + 1,
     description: description,
     done: false,
   };
 
-  TASKS.push(task);
-
-  return task
+  return fetch(`${apiUrl}/tasks`, {
+    method: 'POST',
+    body: JSON.stringify(task),
+  })
+    .then(response => response.json())
 }
 
 function updateTask(task) {
-  const index = TASKS.findIndex(t => t.id === task.id);
-  // TASKS.findIndex(function (t) {
-  //   if (t.id === true) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // });
-
-  TASKS[index] = task;
+  return fetch(`${apiUrl}/tasks/${task.id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(task),
+  })
+    .then(response => response.json())
 }
 
 function deleteTask(task) {
-  const index = TASKS.findIndex(t => t.id === task.id);
-  delete TASKS[index];
+  return fetch(`${apiUrl}/tasks/${task.id}`, {
+    method: 'DELETE',
+    body: JSON.stringify(task),
+  })
+    .then(response => response.json())
 }
 
+// Functions
 function createTaskElement(task) {
   const taskElement = document.createElement('li');
 
@@ -117,8 +122,9 @@ function createTaskElement(task) {
     // const newTask = Object.assign({}, task)
     newTask.done = e.target.checked;
 
-    updateTask(newTask);
-    updateTasksLeft()
+    updateTask(newTask).then(function () {
+      updateTasksLeft();
+    });
   }
 
   taskElement.querySelector('span.material-icons').onclick = () => {
@@ -126,9 +132,10 @@ function createTaskElement(task) {
     modalElement.classList.add('open');
 
     modalYesButton.onclick = () => {
-      deleteTask(task);
-      modalNoButton.click();
-      taskElement.remove();
+      deleteTask(task).then(() => {
+        modalNoButton.click();
+        taskElement.remove();
+      })
     };
   };
 
@@ -144,11 +151,11 @@ function createTaskElement(task) {
     updateButton.onclick = () => {
       const updatedTask = {...task};
       updatedTask.description = input.value;
-      updateTask(updatedTask);
-
-      const updatedTaskElement = createTaskElement(updatedTask);
-      taskElement.parentElement.insertBefore(updatedTaskElement, taskElement);
-      taskElement.remove();
+      updateTask(updatedTask).then(()=>{
+        const updatedTaskElement = createTaskElement(updatedTask);
+        taskElement.parentElement.insertBefore(updatedTaskElement, taskElement);
+        taskElement.remove();
+      })
     };
 
     taskElement.appendChild(input);
@@ -179,40 +186,53 @@ function listTasks(taskList, tasks, filter = 'all') {
 
 function updateFilterButtonsElements(e) {
   const element = e.target;
+  taskListElement.innerHTML = 'loading';
 
   filterButtons.forEach(button => button.disabled = false);
   element.disabled = true;
 
-  if (element.id === 'allButton') {
-    listTasks(taskListElement, TASKS, 'all');
-  }
-  if (element.id === 'pendingButton') {
-    listTasks(taskListElement, TASKS, 'pending')
-  }
-  if (element.id === 'completedButton') {
-    listTasks(taskListElement, TASKS, 'completed')
-  }
+  getTasks().then(tasks => {
+    if (element.id === 'allButton') {
+      listTasks(taskListElement, tasks, 'all');
+    }
+    if (element.id === 'pendingButton') {
+      listTasks(taskListElement, tasks, 'pending')
+    }
+    if (element.id === 'completedButton') {
+      listTasks(taskListElement, tasks, 'completed')
+    }
+  })
 }
 
 function updateTasksLeft() {
-  const count = TASKS.filter(task => task.done === false).length;
-  tasksLeftElement.textContent = `Quedan ${count} tareas`;
+  getTasks()
+    .then(tasks => {
+      const count = tasks.filter(task => task.done === false).length;
+      tasksLeftElement.textContent = `Quedan ${count} tareas`;
+    })
 }
 
-listTasks(taskListElement, TASKS);
+getTasks()
+  .then(tasks => listTasks(taskListElement, tasks))
+
+// getTasks()
+//   .then(function (tasks) {
+//     listTasks(taskListElement, tasks);
+//   })
 
 // Events
-
 taskInputElement.onkeyup = (e) => {
   const input = e.target;
 
   if (e.key === 'Enter' && input.value) {
-    input.focus();
-    const task = createTask(input.value);
-    const taskElement = createTaskElement(task);
-    input.value = '';
+    createTask(input.value)
+      .then(task => {
+        input.focus();
+        const taskElement = createTaskElement(task);
+        input.value = '';
 
-    taskListElement.appendChild(taskElement);
+        taskListElement.appendChild(taskElement);
+      })
   }
 };
 
