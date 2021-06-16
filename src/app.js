@@ -67,6 +67,9 @@ const pendingButton = document.querySelector('#pendingButton');
 const completedButton = document.querySelector('#completedButton');
 const filterButtons = [allButton, pendingButton, completedButton];
 
+// vars
+let tasks;
+
 // Services
 const apiUrl = 'https://us-central1-classroom-playground.cloudfunctions.net/api/gilberto';
 
@@ -116,15 +119,16 @@ function createTaskElement(task) {
     <span class="material-icons btn-delete">delete_outline</span>
   `;
 
-  const input = taskElement.querySelector('input');
-  input.onchange = function (e) {
+  taskElement.querySelector('input').onchange = e => {
     const newTask = {...task};
-    // const newTask = Object.assign({}, task)
     newTask.done = e.target.checked;
 
-    updateTask(newTask).then(function () {
-      updateTasksLeft();
-    });
+    updateTask(newTask)
+      .then((updatedTask) => {
+        const index = tasks.findIndex(t => t.id === updatedTask.id)
+        tasks[index] = updatedTask;
+        updateTasksLeftElement();
+      });
   }
 
   taskElement.querySelector('span.material-icons').onclick = () => {
@@ -135,6 +139,8 @@ function createTaskElement(task) {
       deleteTask(task).then(() => {
         modalNoButton.click();
         taskElement.remove();
+        const index = tasks.findIndex(t => t.id === task.id);
+        tasks.splice(index, 1);
       })
     };
   };
@@ -151,7 +157,9 @@ function createTaskElement(task) {
     updateButton.onclick = () => {
       const updatedTask = {...task};
       updatedTask.description = input.value;
-      updateTask(updatedTask).then(()=>{
+      updateTask(updatedTask).then(() => {
+        const index = tasks.findIndex(t => t.id === updatedTask.id)
+        tasks[index] = updatedTask;
         const updatedTaskElement = createTaskElement(updatedTask);
         taskElement.parentElement.insertBefore(updatedTaskElement, taskElement);
         taskElement.remove();
@@ -167,7 +175,7 @@ function createTaskElement(task) {
   return taskElement;
 }
 
-function listTasks(taskList, tasks, filter = 'all') {
+function listTasksElements(tasks, filter = 'all') {
   if (filter === 'pending') {
     tasks = tasks.filter(task => task.done === false);
   }
@@ -175,50 +183,25 @@ function listTasks(taskList, tasks, filter = 'all') {
     tasks = tasks.filter(task => task.done === true);
   }
 
-  taskList.innerHTML = '';
+  taskListElement.innerHTML = '';
   for (const task of tasks) {
     const taskElement = createTaskElement(task)
 
-    taskList.appendChild(taskElement)
+    taskListElement.appendChild(taskElement)
   }
-  updateTasksLeft()
+  updateTasksLeftElement()
 }
 
-function updateFilterButtonsElements(e) {
-  const element = e.target;
-  taskListElement.innerHTML = 'loading';
-
-  filterButtons.forEach(button => button.disabled = false);
-  element.disabled = true;
-
-  getTasks().then(tasks => {
-    if (element.id === 'allButton') {
-      listTasks(taskListElement, tasks, 'all');
-    }
-    if (element.id === 'pendingButton') {
-      listTasks(taskListElement, tasks, 'pending')
-    }
-    if (element.id === 'completedButton') {
-      listTasks(taskListElement, tasks, 'completed')
-    }
-  })
-}
-
-function updateTasksLeft() {
-  getTasks()
-    .then(tasks => {
-      const count = tasks.filter(task => task.done === false).length;
-      tasksLeftElement.textContent = `Quedan ${count} tareas`;
-    })
+function updateTasksLeftElement() {
+  const count = tasks.filter(task => task.done === false).length;
+  tasksLeftElement.textContent = `Quedan ${count} tareas`;
 }
 
 getTasks()
-  .then(tasks => listTasks(taskListElement, tasks))
-
-// getTasks()
-//   .then(function (tasks) {
-//     listTasks(taskListElement, tasks);
-//   })
+  .then(ts => {
+    tasks = ts;
+    listTasksElements(tasks);
+  })
 
 // Events
 taskInputElement.onkeyup = (e) => {
@@ -227,6 +210,7 @@ taskInputElement.onkeyup = (e) => {
   if (e.key === 'Enter' && input.value) {
     createTask(input.value)
       .then(task => {
+        tasks.push(task);
         input.focus();
         const taskElement = createTaskElement(task);
         input.value = '';
@@ -236,12 +220,13 @@ taskInputElement.onkeyup = (e) => {
   }
 };
 
-allButton.onclick = function (e) {
-  updateFilterButtonsElements(e)
-}
-pendingButton.onclick = (e) => updateFilterButtonsElements(e);
-completedButton.onclick = (e) => updateFilterButtonsElements(e);
+filterButtons
+  .forEach(button => button.onclick = (event) => {
+    const element = event.target;
+    filterButtons.forEach(button => button.disabled = false);
+    element.disabled = true;
 
-modalNoButton.onclick = () => {
-  modalElement.classList.remove('open');
-}
+    listTasksElements(tasks, element.value);
+  })
+
+modalNoButton.onclick = () => modalElement.classList.remove('open');
