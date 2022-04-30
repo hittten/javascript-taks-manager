@@ -33,14 +33,12 @@ export const create = (description: string) => {
 //   return TASKS[index];
 // }
 
-export const update = (task: Task): Task => {
+export const update = (task: Task): void => {
   const index = TASKS.findIndex(t => t.id === task.id);
-  return TASKS[index] = task;
+  TASKS[index] = task;
 }
 
-export const deleteTask = (task: Task): Task => {
+export const deleteTask = (task: Task): void => {
   const index = TASKS.findIndex(t => t.id === task.id);
   delete TASKS[index];
-
-  return task;
 }

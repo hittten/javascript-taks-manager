@@ -61,7 +61,6 @@ taskInputElement.onkeyup = (e) => {
   const input = e.target;
 
   if (e.key === 'Enter' && input.value) {
-    input.focus();
     const task = taskService.create(input.value);
     const taskElement = createTaskElement(task);
     input.value = '';
@@ -70,14 +69,21 @@ taskInputElement.onkeyup = (e) => {
   }
 };
 
-allButton.onclick = function (e) {
-  updateFilterButtonsElements(e)
-}
-pendingButton.onclick = (e) => updateFilterButtonsElements(e);
-completedButton.onclick = (e) => updateFilterButtonsElements(e);
+// allButton.onclick = function (e) {
+//   updateFilterButtonsElements(e)
+// }
+// pendingButton.onclick = (e) => updateFilterButtonsElements(e);
+// completedButton.onclick = (e) => updateFilterButtonsElements(e);
+//
+// modalNoButton.onclick = () => {
+//   modalElement.classList.remove('open');
+// }
 
-modalNoButton.onclick = () => {
-  modalElement.classList.remove('open');
+taskListElement.onclick = (e) => {
+  const taskElement = e.target.closest('li')
+  console.log(taskElement)
+   const element = e.target as HTMLSpanElement
+  console.log('localName', element.localName)
 }
 
 taskListElement.addEventListener('TaskEventDelete', e => {

@@ -1,4 +1,4 @@
-function taskEvent(task, element, action) {
+function taskEvent(task: Task, element: HTMLLIElement, action: string) {
   const TaskEvent = new CustomEvent('TaskEvent' + action, {
     bubbles: true,
     detail: {
@@ -15,14 +15,18 @@ function setEvents(element: HTMLLIElement, task: Task) {
   const spanDescription: HTMLSpanElement = element.querySelector('span')
   const buttonDelete: HTMLButtonElement = element.querySelector('span.material-icons')
 
-  checkboxDone.onchange = () =>
-    taskEvent(task, element, 'Update')
-
-  spanDescription.ondblclick = () =>
-    taskEvent(task, element, 'Update')
-
-  buttonDelete.onclick = () =>
-    taskEvent(task, element, 'Delete')
+  // checkboxDone.onchange = (e) => {
+  //   const checkboxElement = e.target as HTMLInputElement;
+  //   taskEvent({...task, done: checkboxElement.checked}, element, 'Update');
+  // }
+  //
+  // spanDescription.ondblclick = () => {
+  //
+  //   taskEvent(task, element, 'Update');
+  // }
+  //
+  // buttonDelete.onclick = () =>
+  //   taskEvent(task, element, 'Delete')
 }
 
 export function createTaskElement(task: Task) {
