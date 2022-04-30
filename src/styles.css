@@ -103,11 +103,18 @@ main ul li div {
 }
 
 main ul li.updating div,
-main ul li.updating span.btn-delete {
+main ul li.updating span.btn-delete,
+main ul li input[type="text"],
+main ul li span.btn-save {
   display: none;
 }
 
+main ul li.updating span.btn-save {
+  display: block;
+}
+
 main ul li.updating input {
+  display: block;
   width: 100%;
   padding: 10px 5px;
   outline: none;

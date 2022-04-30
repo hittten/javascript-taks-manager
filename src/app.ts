@@ -1,12 +1,8 @@
-import * as taskService from "./task.service";
-import {list, TaskFilter} from "./task.service";
-import {TASKS} from "./tasks.mock";
-import {createTaskElement} from "./task-element.service";
-
-console.log('hello world');
+import {createTask, getTasks, TaskFilter} from "./task.service";
+import {createTaskElement, TaskEvent} from "./task-element.service";
 
 // Elements
-const taskInputElement = document.querySelector('#taskInput');
+const taskInputElement = document.querySelector<HTMLInputElement>('#taskInput');
 const taskListElement = document.querySelector('#taskList');
 
 const modalElement = document.querySelector('.modal');
@@ -15,81 +11,61 @@ const modalNoButton = modalElement.querySelector('button:last-child');
 
 const tasksLeftElement = document.querySelector('#tasksLeft');
 
-const allButton = document.querySelector('#allButton');
-const pendingButton = document.querySelector('#pendingButton');
-const completedButton = document.querySelector('#completedButton');
-const filterButtons = [allButton, pendingButton, completedButton];
-
-
-function listTasks(taskList, tasks) {
-  taskList.innerHTML = '';
+function createTaskElements(tasks: Task[]) {
+  taskListElement.innerHTML = '';
   for (const task of tasks) {
     const taskElement = createTaskElement(task)
-
-    taskList.appendChild(taskElement)
-  }
-  updateTasksLeft()
-}
-
-function updateFilterButtonsElements(e) {
-  const element = e.target;
-
-  filterButtons.forEach(button => button.disabled = false);
-  element.disabled = true;
-
-  if (element.id === 'allButton') {
-    listTasks(taskListElement, taskService.list())
-  }
-  if (element.id === 'pendingButton') {
-    listTasks(taskListElement, taskService.list(TaskFilter.pending))
-  }
-  if (element.id === 'completedButton') {
-    listTasks(taskListElement, taskService.list(TaskFilter.completed))
+    taskListElement.appendChild(taskElement)
   }
 }
 
-function updateTasksLeft() {
-  const count = TASKS.filter(task => task.done === false).length;
-  tasksLeftElement.textContent = `Quedan ${count} tareas`;
-}
+// function updateTasksLeft() {
+//   const count = TASKS.filter(task => !task.done).length;
+//   tasksLeftElement.textContent = `Quedan ${count} tareas`;
+// }
 
-listTasks(taskListElement, list());
+const tasks = getTasks()
+
+const count = tasks.filter(task => !task.done).length;
+tasksLeftElement.textContent = `Quedan ${count} tareas`;
+createTaskElements(getTasks());
 
 // Events
 
 taskInputElement.onkeyup = (e) => {
-  const input = e.target;
-
-  if (e.key === 'Enter' && input.value) {
-    const task = taskService.create(input.value);
+  if (e.key === 'Enter' && taskInputElement.value) {
+    const task = createTask(taskInputElement.value);
     const taskElement = createTaskElement(task);
-    input.value = '';
+    taskInputElement.value = '';
 
     taskListElement.appendChild(taskElement);
   }
 };
 
-// allButton.onclick = function (e) {
-//   updateFilterButtonsElements(e)
-// }
-// pendingButton.onclick = (e) => updateFilterButtonsElements(e);
-// completedButton.onclick = (e) => updateFilterButtonsElements(e);
+// Filter control
+const filterButtonsContainer = document.querySelector('.filterButtons');
+const filterButtons = filterButtonsContainer.querySelectorAll('button');
+
+filterButtonsContainer.addEventListener('click', (e) => {
+  const button = e.target;
+  if (!(button instanceof HTMLButtonElement)) {
+    return
+  }
+
+  const filter = button.dataset.filter as TaskFilter
+  createTaskElements(getTasks(filter))
+
+  // disable buttons
+  for (const btn of filterButtons) {
+    btn.disabled = false;
+  }
+  button.disabled = true;
+})
 //
 // modalNoButton.onclick = () => {
 //   modalElement.classList.remove('open');
 // }
 
-taskListElement.onclick = (e) => {
-  const taskElement = e.target.closest('li')
-  console.log(taskElement)
-   const element = e.target as HTMLSpanElement
-  console.log('localName', element.localName)
-}
-
-taskListElement.addEventListener('TaskEventDelete', e => {
-  console.log(e)
-});
-
-taskListElement.addEventListener('TaskEventUpdate', e => {
-  console.log(e)
+taskListElement.addEventListener('TaskEvent', (e: CustomEvent<TaskEvent>) => {
+  console.log(e.target, e.detail)
 });

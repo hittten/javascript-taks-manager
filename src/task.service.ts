@@ -5,18 +5,18 @@ export enum TaskFilter {
   pending = 'pending',
 }
 
-export const list = (filter?: TaskFilter) => {
+export const getTasks = (filter?: TaskFilter) => {
   if (filter === TaskFilter.completed) {
     return TASKS.filter(task => task.done);
   }
   if (filter === TaskFilter.pending) {
-    return TASKS.filter(task => task.done);
+    return TASKS.filter(task => !task.done);
   }
 
   return TASKS;
 }
 
-export const create = (description: string) => {
+export const createTask = (description: string) => {
   const task = {
     id: getRandomId(100, 999),
     description,
@@ -33,7 +33,7 @@ export const create = (description: string) => {
 //   return TASKS[index];
 // }
 
-export const update = (task: Task): void => {
+export const updateTask = (task: Task): void => {
   const index = TASKS.findIndex(t => t.id === task.id);
   TASKS[index] = task;
 }

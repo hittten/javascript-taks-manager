@@ -1,32 +1,6 @@
-function taskEvent(task: Task, element: HTMLLIElement, action: string) {
-  const TaskEvent = new CustomEvent('TaskEvent' + action, {
-    bubbles: true,
-    detail: {
-      action,
-      task,
-    }
-  });
-
-  element.dispatchEvent(TaskEvent)
-}
-
-function setEvents(element: HTMLLIElement, task: Task) {
-  const checkboxDone: HTMLInputElement = element.querySelector('input')
-  const spanDescription: HTMLSpanElement = element.querySelector('span')
-  const buttonDelete: HTMLButtonElement = element.querySelector('span.material-icons')
-
-  // checkboxDone.onchange = (e) => {
-  //   const checkboxElement = e.target as HTMLInputElement;
-  //   taskEvent({...task, done: checkboxElement.checked}, element, 'Update');
-  // }
-  //
-  // spanDescription.ondblclick = () => {
-  //
-  //   taskEvent(task, element, 'Update');
-  // }
-  //
-  // buttonDelete.onclick = () =>
-  //   taskEvent(task, element, 'Delete')
+export interface TaskEvent {
+  action: string
+  task: Task
 }
 
 export function createTaskElement(task: Task) {
@@ -38,6 +12,8 @@ export function createTaskElement(task: Task) {
       <span>${task.description}</span>
     </div>
     <span class="material-icons btn-delete">delete_outline</span>
+    <input type="text" value="${task.description}">
+    <span class="material-icons btn-save">done</span>
   `;
 
   setEvents(element, task)
@@ -45,4 +21,47 @@ export function createTaskElement(task: Task) {
   return element
 }
 
+function setEvents(element: HTMLLIElement, task: Task) {
+  const checkboxDone: HTMLInputElement = element.querySelector('input')
+  const spanDescription: HTMLSpanElement = element.querySelector('span')
+  const buttonDelete: HTMLSpanElement = element.querySelector('.btn-delete')
+  const buttonSave: HTMLSpanElement = element.querySelector('.btn-save')
+  const updateInput: HTMLInputElement = element.querySelector('input[type="text"]')
 
+  checkboxDone.onchange = () =>
+    taskEvent({...task, done: checkboxDone.checked}, element, 'Update')
+
+  spanDescription.ondblclick = () => {
+    element.classList.add('updating')
+    updateInput.focus()
+  }
+
+  buttonDelete.onclick = () =>
+    taskEvent(task, element, 'Delete')
+
+  buttonSave.onclick = () =>
+    taskEvent({...task, description: updateInput.value}, element, 'Update')
+
+  updateInput.onkeyup = (e) => {
+    if (e.code === 'Escape') {
+      element.classList.remove('updating')
+      return
+    }
+    if (e.code === 'Enter') {
+      taskEvent({...task, description: updateInput.value}, element, 'Update')
+      return
+    }
+  }
+}
+
+function taskEvent(task: Task, element: HTMLLIElement, action: string) {
+  const TaskEvent = new CustomEvent<TaskEvent>('TaskEvent', {
+    bubbles: true,
+    detail: {
+      action,
+      task,
+    }
+  });
+
+  element.dispatchEvent(TaskEvent)
+}
