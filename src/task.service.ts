@@ -40,5 +40,5 @@ export const updateTask = (task: Task): void => {
 
 export const deleteTask = (task: Task): void => {
   const index = TASKS.findIndex(t => t.id === task.id);
-  delete TASKS[index];
+  TASKS.splice(index, 1);
 }

@@ -21,6 +21,18 @@ export function createTaskElement(task: Task) {
   return element
 }
 
+export function editTaskElement(element: HTMLLIElement, task: Task) {
+  element.querySelector('span').textContent = task.description
+}
+
+export function enableFormEditTask(element: HTMLLIElement) {
+  element.classList.add('updating')
+}
+
+export function disableFormEditTask(element: HTMLLIElement) {
+  element.classList.remove('updating')
+}
+
 function setEvents(element: HTMLLIElement, task: Task) {
   const checkboxDone: HTMLInputElement = element.querySelector('input')
   const spanDescription: HTMLSpanElement = element.querySelector('span')
@@ -32,7 +44,7 @@ function setEvents(element: HTMLLIElement, task: Task) {
     taskEvent({...task, done: checkboxDone.checked}, element, 'Update')
 
   spanDescription.ondblclick = () => {
-    element.classList.add('updating')
+    enableFormEditTask(element)
     updateInput.focus()
   }
 
@@ -44,7 +56,7 @@ function setEvents(element: HTMLLIElement, task: Task) {
 
   updateInput.onkeyup = (e) => {
     if (e.code === 'Escape') {
-      element.classList.remove('updating')
+      enableFormEditTask(element)
       return
     }
     if (e.code === 'Enter') {

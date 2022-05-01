@@ -1,14 +1,9 @@
-import {createTask, getTasks, TaskFilter} from "./task.service";
-import {createTaskElement, TaskEvent} from "./task-element.service";
+import {createTask, deleteTask, getTasks, TaskFilter, updateTask} from "./task.service";
+import {disableFormEditTask, createTaskElement, TaskEvent, editTaskElement} from "./task-element.service";
 
 // Elements
 const taskInputElement = document.querySelector<HTMLInputElement>('#taskInput');
 const taskListElement = document.querySelector('#taskList');
-
-const modalElement = document.querySelector('.modal');
-const modalYesButton = modalElement.querySelector('button:first-child');
-const modalNoButton = modalElement.querySelector('button:last-child');
-
 const tasksLeftElement = document.querySelector('#tasksLeft');
 
 function createTaskElements(tasks: Task[]) {
@@ -61,11 +56,21 @@ filterButtonsContainer.addEventListener('click', (e) => {
   }
   button.disabled = true;
 })
-//
-// modalNoButton.onclick = () => {
-//   modalElement.classList.remove('open');
-// }
-
 taskListElement.addEventListener('TaskEvent', (e: CustomEvent<TaskEvent>) => {
-  console.log(e.target, e.detail)
+  const element = e.target as HTMLLIElement
+  const {action, task} = e.detail
+
+  if (action === 'Update') {
+    updateTask(task)
+    editTaskElement(element, task)
+    disableFormEditTask(element)
+    return
+  }
+
+  if (action === 'Delete') {
+    deleteTask(task)
+    element.remove()
+    disableFormEditTask(element)
+    return
+  }
 });
