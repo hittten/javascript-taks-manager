@@ -5,6 +5,28 @@ export interface TaskEvent {
   task: Task
 }
 
+export const taskListElement = document.querySelector('#taskList');
+const tasksLeftElement = document.querySelector('#tasksLeft');
+
+export function createTaskElements(tasks: Task[]) {
+  taskListElement.innerHTML = '';
+  let count = 0;
+  for (const task of tasks) {
+    const taskElement = createTaskElement(task)
+    taskListElement.appendChild(taskElement)
+
+    if(!task.done) {
+      count++
+    }
+  }
+
+  updateTasksLeft(count)
+}
+
+export function updateTasksLeft(count: number) {
+  tasksLeftElement.textContent = `Quedan ${count} tareas`;
+}
+
 export function createTaskElement(task: Task) {
   const element = document.createElement('li')
 

@@ -1,31 +1,16 @@
 import {createTask, deleteTask, getTasks, TaskFilter, updateTask} from "./task.service";
-import {disableFormEditTask, createTaskElement, TaskEvent, editTaskElement} from "./task-element.service";
+import {
+  disableFormEditTask,
+  TaskEvent,
+  editTaskElement,
+  createTaskElements, createTaskElement, taskListElement
+} from "./task-element.service";
 
-// Elements
-const taskInputElement = document.querySelector<HTMLInputElement>('#taskInput');
-const taskListElement = document.querySelector('#taskList');
-const tasksLeftElement = document.querySelector('#tasksLeft');
-
-function createTaskElements(tasks: Task[]) {
-  taskListElement.innerHTML = '';
-  for (const task of tasks) {
-    const taskElement = createTaskElement(task)
-    taskListElement.appendChild(taskElement)
-  }
-}
-
-// function updateTasksLeft() {
-//   const count = TASKS.filter(task => !task.done).length;
-//   tasksLeftElement.textContent = `Quedan ${count} tareas`;
-// }
-
-const tasks = getTasks()
-
-const count = tasks.filter(task => !task.done).length;
-tasksLeftElement.textContent = `Quedan ${count} tareas`;
+// list all tasks
 createTaskElements(getTasks());
 
-// Events
+
+const taskInputElement = document.querySelector<HTMLInputElement>('#taskInput');
 
 taskInputElement.onkeyup = (e) => {
   if (e.key === 'Enter' && taskInputElement.value) {
@@ -36,6 +21,25 @@ taskInputElement.onkeyup = (e) => {
     taskListElement.appendChild(taskElement);
   }
 };
+
+taskListElement.addEventListener('TaskEvent', (e: CustomEvent<TaskEvent>) => {
+  const element = e.target as HTMLLIElement
+  const {action, task} = e.detail
+
+  if (action === 'Update') {
+    updateTask(task)
+    editTaskElement(element, task)
+    disableFormEditTask(element)
+    return
+  }
+
+  if (action === 'Delete') {
+    deleteTask(task)
+    element.remove()
+    disableFormEditTask(element)
+    return
+  }
+});
 
 // Filter control
 const filterButtonsContainer = document.querySelector('.filterButtons');
@@ -56,21 +60,3 @@ filterButtonsContainer.addEventListener('click', (e) => {
   }
   button.disabled = true;
 })
-taskListElement.addEventListener('TaskEvent', (e: CustomEvent<TaskEvent>) => {
-  const element = e.target as HTMLLIElement
-  const {action, task} = e.detail
-
-  if (action === 'Update') {
-    updateTask(task)
-    editTaskElement(element, task)
-    disableFormEditTask(element)
-    return
-  }
-
-  if (action === 'Delete') {
-    deleteTask(task)
-    element.remove()
-    disableFormEditTask(element)
-    return
-  }
-});

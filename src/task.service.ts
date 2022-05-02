@@ -28,11 +28,6 @@ export const createTask = (description: string) => {
   return task
 }
 
-// export const read = (id: string): Task => {
-//   const index = TASKS.findIndex(t => t.id === id);
-//   return TASKS[index];
-// }
-
 export const updateTask = (task: Task): void => {
   const index = TASKS.findIndex(t => t.id === task.id);
   TASKS[index] = task;

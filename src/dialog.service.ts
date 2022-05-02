@@ -3,10 +3,8 @@ const modalYesButton = modalElement.querySelector<HTMLButtonElement>('button:fir
 const modalNoButton = modalElement.querySelector<HTMLButtonElement>('button:last-child');
 
 export async function openDialog(text: string) {
-  modalElement.querySelector('p')
-    .textContent = text
+  modalElement.querySelector('p').textContent = text
   modalElement.classList.add('open')
-  modalElement.focus()
 
   return new Promise(resolve => {
     const closeDialog = (value: boolean) => {
@@ -14,27 +12,21 @@ export async function openDialog(text: string) {
       modalElement.classList.remove('open')
     };
 
-    modalNoButton.onclick = () => {
-      closeDialog(false);
-    }
-
-    modalYesButton.onclick = () => {
-      closeDialog(true);
-    }
-
+    modalNoButton.onclick = () => closeDialog(false)
+    modalYesButton.onclick = () => closeDialog(true)
     modalElement.onclick = (e) => {
       if (e.target === modalElement) {
         closeDialog(false);
       }
     }
 
-    document.body.addEventListener("keyup", e => {
-      console.log(e)
-      if (e.key === 'Escape'){
-        this
+    document.body.addEventListener("keyup", onKeyupEscape)
+
+    function onKeyupEscape(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
         closeDialog(false)
+        document.body.removeEventListener("keyup", onKeyupEscape)
       }
-    })
+    }
   })
 }
-
