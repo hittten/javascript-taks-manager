@@ -1,3 +1,5 @@
+import {openDialog} from "./dialog.service";
+
 export interface TaskEvent {
   action: string
   task: Task
@@ -48,8 +50,13 @@ function setEvents(element: HTMLLIElement, task: Task) {
     updateInput.focus()
   }
 
-  buttonDelete.onclick = () =>
-    taskEvent(task, element, 'Delete')
+  buttonDelete.onclick = () => {
+    openDialog(task.description).then(value => {
+      if (value) {
+        taskEvent(task, element, 'Delete');
+      }
+    })
+  }
 
   buttonSave.onclick = () =>
     taskEvent({...task, description: updateInput.value}, element, 'Update')
